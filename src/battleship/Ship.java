@@ -59,6 +59,17 @@ abstract class Ship {
         return bowColumn;
     }
 
+    int getAmountOfAffectedParts() {
+        int amountOfAffectedParts = 0;
+        for (boolean partWasHit : hit) {
+            if (partWasHit) {
+                amountOfAffectedParts++;
+            }
+        }
+
+        return amountOfAffectedParts;
+    }
+
     /**
      * Getter for horizontal variable.
      *
@@ -114,11 +125,9 @@ abstract class Ship {
      */
     boolean okToPlaceShipAt(int row, int column, boolean horizontal, Ocean ocean) {
         if (horizontal) {
-
             if (column + getLength() > FIELD_SIZE) {
                 return false;
             }
-
             for (var i = row - 1; i <= row + 1; i++) {
                 for (var j = column - 1; j <= column + getLength() + 1; j++) {
                     if (!indexesOutOfBounds(i, j)) {
@@ -128,13 +137,10 @@ abstract class Ship {
                     }
                 }
             }
-
         } else {
-
             if (row + getLength() > FIELD_SIZE) {
                 return false;
             }
-
             for (var i = row - 1; i < row + getLength() + 1; i++) {
                 for (var j = column - 1; j <= column + 1; j++) {
                     if (!indexesOutOfBounds(i, j)) {
@@ -144,8 +150,8 @@ abstract class Ship {
                     }
                 }
             }
-
         }
+
         return true;
     }
 
@@ -237,13 +243,7 @@ abstract class Ship {
      * @return true if every part of the ship has been hit, otherwise – false
      */
     boolean isSunk() {
-        int amountOfAffectedParts = 0;
-        for (boolean partWasHit : hit) {
-            if (partWasHit) {
-                amountOfAffectedParts++;
-            }
-        }
-        return amountOfAffectedParts == hit.length;
+        return getAmountOfAffectedParts() == hit.length;
     }
 
     /**

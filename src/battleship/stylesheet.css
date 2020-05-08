@@ -1,0 +1,55 @@
+.root {
+    -fx-font-size: medium;
+}
+
+.text-area {
+    -fx-opacity: 1;
+    -fx-font-family: "Courier New";
+    -fx-focus-traversable: false;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: lightblue;
+    -fx-border-width: 5px;
+}
+
+.text-area:focused {
+    -fx-focus-traversable: false;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: transparent;
+}
+
+.text-area:hover {
+    -fx-focus-traversable: false;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: transparent;
+}
+
+.text-area .text {
+    -fx-text-alignment: center;
+}
+
+.button {
+    -fx-background-radius: 0;
+    -fx-border-style: none;
+    -fx-background-color: white;
+    -fx-focus-color: transparent;
+    -fx-focus-traversable: false;
+}
+
+.button:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-traversable: false;
+}
+
+.button:hover {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-traversable: false;
+}
+
+.label {
+    -fx-background-color: white;
+    -fx-alignment: center;
+}
+

@@ -1,138 +1,102 @@
 package battleship;
 
-import java.util.Scanner;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 
-import static java.lang.System.out;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Main game class, containing main method.
  */
-public class BattleshipGame {
+public class BattleshipGame extends Application {
 
     /**
-     * Method to display information about the game such as amount of shots fired, amount of hits and amount of sunk ships.
-     *
-     * @param ocean instance of Ocean
+     * Possible keyboard inputs.
      */
-    private static void displayFinalGameInfo(Ocean ocean) {
-        out.println(String.format("Shots fired (score): %s\nHits: %s\nShips sunk: %s\nBest possible score: 20",
-                ocean.getShotsFired(), ocean.getHitCount(), ocean.getShipsSunk()));
-        out.println("Game over! Wanna play again?" +
-                "\nPrint 'y' to start a new game or any other key to exit.\n");
-    }
+    private static HashSet<String> keys = new HashSet<>();
 
-    private static void displayCurrentGameInfo(Ocean ocean, Coordinates coordinates) {
-        out.println(hitOrMiss(ocean, coordinates));
-        ocean.print();
+    static {
+        Collections.addAll(keys, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
     }
 
     /**
-     * Method which generates new ocean instance and places ships randomly in it.
+     * Method to set styling to main layout.
      *
-     * @return Ocean instance
+     * @param gridPane to which styling is set
      */
-    private static Ocean generateNewOcean() {
-        out.println("Welcome to a Battleship game!");
-        printHelp();
-        Ocean ocean = new Ocean();
-        ocean.placeAllShipsRandomly();
-        return ocean;
+    private static void setMainGridStyling(GridPane gridPane) {
+        gridPane.setStyle("-fx-background-image: url('/battleship/background.jpg');");
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setAlignment(Pos.CENTER);
+        gridPane.setPadding(new Insets(0, (Utils.getScreenWidth() - 2 * Utils.getScreenWidth() / 2.5) / 2, 0, 10));
     }
 
     /**
-     * Method to check whether player has hit a ship or not.
+     * Method to set styling to stage.
      *
-     * @param ocean       Ocean instance
-     * @param coordinates where player has shoot
-     * @return "You just sunk a {ship type}" if the player has sunk a ship,
-     * "hit" if the player has hit the ship, but not sunk, otherwise – "miss"
+     * @param stage to which styling is set
      */
-    private static String hitOrMiss(Ocean ocean, Coordinates coordinates) {
-        if (ocean.shootAt(coordinates.getX(), coordinates.getY())) {
-            Ship ship = ocean.getShipArray()[coordinates.getX()][coordinates.getY()];
-            if (ship.isSunk()) {
-                return String.format("\n\tYou just sunk a %s!\n", ship.getShipType());
-            } else {
-                return "\n\thit\n";
+    private static void setStageStyling(Stage stage) {
+        stage.setTitle("Battleship");
+        stage.setMinWidth(Utils.getScreenWidth());
+        stage.setMinHeight(Utils.getScreenHeight());
+    }
+
+    /**
+     * Method to add all needed for game components to main grid pane.
+     *
+     * @param rootGrid main layout
+     * @return instance of battleship field
+     */
+    private static Battlefield createGameUI(GridPane rootGrid) {
+        setMainGridStyling(rootGrid);
+
+        var logArea = new TextArea();
+        var gameInfoArea = new TextArea();
+        var field = new Battlefield(logArea, gameInfoArea);
+
+        rootGrid.add(field, 0, 0);
+        rootGrid.add(logArea, 0, 1);
+        rootGrid.add(gameInfoArea, 1, 0);
+
+        return field;
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        setStageStyling(stage);
+
+        var rootGrid = new GridPane();
+        var field = createGameUI(rootGrid);
+
+        var scene = new Scene(rootGrid, Utils.getScreenWidth(), Utils.getScreenHeight());
+        scene.getStylesheets().add(getClass().getResource("stylesheet.css").toExternalForm());
+        scene.setOnKeyTyped(key -> {
+            var buttonString = key.getCharacter();
+            if (keys.contains(buttonString)) {
+                field.keyboardInput(Short.parseShort(buttonString));
             }
-        }
-        return "\n\tmiss\n";
-    }
+        });
 
-    /**
-     * Method to check whether player wants to quit the game or not.
-     *
-     * @param ocean Ocean instance
-     */
-    private static void quitGame(Ocean ocean) {
-        out.println(String.format("Game over!\nShots fired: %s\nHits: %s\nShips sunk: %s",
-                ocean.getShotsFired(), ocean.getHitCount(), ocean.getShipsSunk()));
-    }
+        stage.setScene(scene);
+        stage.show();
 
-    /**
-     * Method which prints game rules and input format.
-     */
-    private static void printHelp() {
-        out.println("\nGame rules:" +
-                "\nYou try to hit the ships, by calling out a row and column number." +
-                "\nThe game responds with information: \"hit\" or \"miss\"." +
-                "\nIf a ship is hit and sinks, you will see a message \"You just sank a {ship type}!\"" +
-                "\nA ship is \"sunk\" when every square of the ship has been hit." +
-                "\nIt takes:" +
-                "\n\tfour hits to sink a battleship" +
-                "\n\tthree to sink a cruiser" +
-                "\n\ttwo for a destroyer" +
-                "\n\tone for a submarine\n" +
-                "\nInput format:" +
-                "\n{x, y} to shoot" +
-                "\n'q' to quit" +
-                "\n'h' to get help");
+        rootGrid.requestFocus();
     }
-
-    /**
-     * Scanner class instance to get user input.
-     */
-    private static Scanner scanner = new Scanner(System.in);
 
     /**
      * Method where game is simulated.
      *
-     * @param args command line arguments
+     * @param args
      */
     public static void main(String[] args) {
-        Ocean ocean = generateNewOcean();
-
-        while (true) {
-            out.print("\nEnter coordinates: ");
-            String input = scanner.nextLine();
-
-            if (input.equals("q")) {
-                quitGame(ocean);
-                break;
-            }
-
-            if (input.equals("h")) {
-                printHelp();
-            }
-
-            Coordinates coordinates;
-            try {
-                coordinates = new Coordinates(input.split("[, ]+"));
-            } catch (IllegalArgumentException e) {
-                out.println(e.getMessage());
-                continue;
-            }
-
-            displayCurrentGameInfo(ocean, coordinates);
-
-            if (ocean.isGameOver()) {
-                displayFinalGameInfo(ocean);
-                if (scanner.nextLine().equals("y")) {
-                    ocean = generateNewOcean();
-                } else {
-                    break;
-                }
-            }
-        }
+        launch(args);
     }
 }

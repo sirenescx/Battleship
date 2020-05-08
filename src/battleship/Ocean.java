@@ -83,7 +83,7 @@ class Ocean {
     /**
      * Method to check if the given location contains a ship.
      *
-     * @param row integer number 0..9
+     * @param row    integer number 0..9
      * @param column integer number 0..9
      * @return true if the given location contains a ship,
      * otherwise – false.
@@ -95,7 +95,7 @@ class Ocean {
     /**
      * Method which updates the number of shots that have been fired, and the number of hits.
      *
-     * @param row integer number 0..9
+     * @param row    integer number 0..9
      * @param column integer number 0..9
      * @return true if the given location contains a "real" ship, still afloat, otherwise - false
      */
@@ -109,7 +109,7 @@ class Ocean {
                 }
                 return true;
             }
-            return false;
+            return true;
         } else {
             ships[row][column].shootAt(row, column);
         }
@@ -144,6 +144,29 @@ class Ocean {
     }
 
     /**
+     * Getter for the number of sunk shot.
+     *
+     * @return number of ships which have been shot
+     */
+    int getShipsShot() {
+        var shipsShot = 0;
+        for (int i = 0; i < FIELD_SIZE; ++i) {
+            for (int j = i; j < FIELD_SIZE; ++j) {
+                var ship = ships[i][j];
+                if (ship.isSunk() || ship.getAmountOfAffectedParts() == 0 || ship.getShipType().equals("empty sea")) {
+                    continue;
+                } else {
+                    if (i == ship.getBowRow() && j == ship.getBowColumn()) {
+                        ++shipsShot;
+                    }
+                }
+            }
+        }
+
+        return shipsShot;
+    }
+
+    /**
      * Method to define if game is over or not.
      *
      * @return true if amount of ships sunk is equals to maximum possible ships amount,
@@ -162,32 +185,32 @@ class Ocean {
         return ships;
     }
 
-    /**
-     * Method which prints the ocean. Row numbers are displayed along the left edge of the array,
-     * column numbers are displayed along the top. Numbers are from 0 to 9.
-     * The top left corner square is 0, 0.
-     * 'S' indicates a location that user have fired upon and hit a (real) ship,
-     * '-' indicates a location that user have fired upon and found nothing there,
-     * 'x' indicates location containing a sunken ship,
-     * '.' indicates a location that user have never fired upon.
-     */
-    void print() {
-        out.print("  ");
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            out.print(String.format("%3d", i));
-        }
-        out.println();
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            out.print(String.format("%3d", i));
-            for (int j = 0; j < FIELD_SIZE; j++) {
-                if (ships[i][j].isShootAt(i, j)) {
-                    out.print(String.format("%2s", ships[i][j]));
-                } else {
-                    out.print(String.format("%2s", "."));
-                }
-                out.print(" ");
-            }
-            out.println();
+    // Methods used for tests only.
+
+    void testInitializer(String shipType) {
+        switch (shipType) {
+            case "submarine":
+                var submarine = new Submarine();
+                submarine.placeShipAt(1, 1, true, this);
+                break;
+            case "destroyer":
+                var destroyer = new Destroyer();
+                destroyer.placeShipAt(5, 5, false, this);
+                break;
+            case "cruiser":
+                var cruiser = new Cruiser();
+                cruiser.placeShipAt(2, 1, true, this);
+                break;
+            case "battleship":
+                var battleship = new Battleship();
+                battleship.placeShipAt(1, 3, false, this);
+                break;
+            case "multi":
+                var firstShip = new Battleship();
+                firstShip.placeShipAt(2, 3, true, this);
+                var secondShip = new Destroyer();
+                secondShip.placeShipAt(7, 7, false, this);
+                break;
         }
     }
 }
